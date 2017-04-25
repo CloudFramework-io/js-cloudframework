@@ -1,0 +1,308 @@
+<html>
+<head>
+    <style>
+        #filedrag
+        {
+            font-weight: bold;
+            text-align: center;
+            padding: 1em 0;
+            margin: 1em 0;
+            color: #555;
+            border: 2px dashed #555;
+            border-radius: 7px;
+            cursor: default;
+        }
+
+        #filedrag.hover
+        {
+            color: #f00;
+            border-color: #f00;
+            border-style: solid;
+            box-shadow: inset 0 3px 4px #888;
+        }
+        #overlay {
+            background-color: #F0F0F0;
+            filter:alpha(opacity=50); /* IE */
+            opacity: 0.5; /* Safari, Opera */
+            -moz-opacity:0.50; /* FireFox */
+            z-index: 9999;
+            background-repeat:no-repeat;
+            background-position:center;
+            width: 100%;
+            height: 100%;
+            position:relative;
+            top: 0px;
+            left: 0px;
+            display: none;
+        }​
+    </style>
+</head>
+<body core-config='{"API-SERVER":"https://cloudframework.io/h/api"}'>
+<h1>Testing js-cloudframework</h1>
+<b>?debug</b> to activate debug
+<h2>Basics (<a href="javascript:formParams();">test</a>)</h2>
+<p>
+    - Activate Core debug: <b>Core.debug = true;</b><br/>
+<i>It will activate debug for each method of Core. It requires Core.log.debug = true;</i>
+</p>
+
+<p>
+    - Activate logs debug: <b>Core.logs.debug = true;</b><br/>
+    <i>It will show debug logs</i>
+</p>
+
+<p>
+    - Send logs to dom id elelement: <b>Core.logs.type = 'dom.id elemenet';</b><br/>
+    <i>It will send the logs instead to console.log to a dom id element</i>
+</p>
+<p>
+    - Get params of a url: <b>Core.params([(int)position]);</b><br/>
+    <i>It takes from a url /a/b/c Core.params(0) -> a,Core.params(1) -> b, or Core.params() -> a,b,c. If position does not exist it returns <b>null</b></i>
+</p>
+<p>
+    - Get formParams of a GET url: <b>Core.formParams([(string)varname]);</b><br/>
+    <i>It takes from a url ?var1=a,var2=b Core.formParams('var1') -> a,Core.formParams('var2') -> b, or Core.formParams() -> var1=a&var2=b. If varname does not exist it returns <b>null</b></i>
+</p>
+
+
+<h2>Config Vars (<a href="javascript:configParams();">test</a>)</h2>
+Add in <b>&lt;body></b> the attribute: <b>core-config='{var:value}'</b> to have default . In this example:
+<pre>
+    &ltbody core-config='{"API-SERVER":"https://cloudframework.io/h/api"}'>
+</pre>
+<p>
+    - Get a config params: <b>Core.config.get([(string)varname]);</b><br/>
+    <i>Returns a config value  Core.config.get('API-SERVER') -> https://cloudframework.io/h/api. If varname does not exist it returns <b>null</b></i>
+</p>
+
+<h2>Request Async Calls  (<a href="javascript:request();">test</a>)</h2>
+Based on <a href="https://github.com/github/fetch" target="_blank">fetch polyfill</a>
+
+<b>Core.request</b> helps you to send GET,POST,PUT,DELETE calls with cloudframework headers standards.
+
+<br/>
+- <i>Core.request.base = 'https://xx'</i> it will add the base url to the rest of the calls. equal to '' to avoid base. <br/>
+<br/>
+- <i>Core.request.call(payload[,callback function() {}]);</i><br/>
+<b>payload:</b>
+<li>* url: [http..]/path (if it starts with http it will ignore Core.request.base)</li>
+<li>* method: GET, POST, PUT, DELETE</li>
+<li>credentials: none(default),include(to keep session in the server),same-origin</li>
+<li>mode: cors(default),no-cors</li>
+<li>params: {key1:value1,key2:value2}</li>
+<li>responseType: json(default),html</li>
+<li>contentType: json(default),form(required to upload files)</li>
+<br/>
+If no function is passed in the call, the following <b>callback</b> function will be generated:
+<pre>
+    callback = function(response) {
+        console.log(response);
+    }
+</pre>
+<h2>Send multple file test drag & drop</h2>
+<div id="overlay"> Uploading </div>
+<div id="filedrag">
+<pre>
+&lt;input name='files[]' type="file" onchange="upload(this)" multiple>
+</pre>
+<input name='files[]' type="file" onchange="upload(this)" multiple>
+</div>
+<br/>
+<div id="filelinks"></div>
+<h2>Bind concurrent Async Calls to functions (<a href="javascript:binding();">test</a>)</h2>
+<b>Core.service</b> helps you to bind concurrent async calls to a function avoding to repeat the same call n times.
+This service uses <b>Core.request</b> and the syntax is:
+<pre>
+    Core.services.set(NAME_OF_SERVICE,CORE_REQUEST_PAYLOAD);
+    Core.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 1});
+    Core.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 2});
+</pre>
+The second bind will return the response cached from the previous one. If you need to avoid the
+cache in the bind you can use:
+<pre>
+        Core.services.reset(NAME_OF_SERVICE);
+</pre>
+
+<br/>
+<br/>
+<hr>
+<table>
+    <tr>
+        <td>
+            Tests: (<a href='javascript:Core.dom.setHTML("console","");'>clean</a> )<br/>
+            <textarea id="console" rows="30" cols="120"></textarea>
+        </td>
+        </tr><tr>
+        <td>
+            Console: (textarea has id='log')<br/>
+            <textarea id="log" rows="30" cols="120"></textarea>
+        </td>
+    </tr>
+</table>
+
+
+
+<script src="/js/js-cloudframework.js"></script>
+<script>
+
+    function upload(field) {
+        var overlay = Core.dom.element('overlay');
+
+
+        if(field.files.length) {
+            field.disabled = true;
+
+            var info = Core.fileInput(field);
+            if(info.error) return(Core.error.add(info.errorMsg));
+            else {
+                overlay.style.display = 'block';
+                Core.dom.addHTML("filelinks","... sending file(s):"+JSON.stringify(info.files)+"<br/>");
+                // Calling the service to retrieve URL to upload
+                Core.services.set('getUrlToUpload',{method:'GET',credentials:'include',url:'/_upload/uploadUrl',params:{ssl:1,public:1,apply_hash_to_filenames:1}});
+                Core.services.bind('getUrlToUpload',function(response){
+                    if(response.success) {
+                        var upload_url = response.data.UploadInfo.uploadUrl;
+
+                        Core.services.set('uploadFile',{method:'POST',url:upload_url,credentials:'include',contentType:'form',params:info.params});
+                        Core.services.bind('uploadFile',function(responseUpload){
+                            if(responseUpload.success) {
+                                for(k in responseUpload.data.files) {
+                                    Core.dom.addHTML("filelinks",'<li><a target=_blank href="'+responseUpload.data.files[k]['publicUrl']+'">'+responseUpload.data.files[k]['name']+'</a></li>');
+                                }
+                            }
+                            console.log(responseUpload);
+                            field.disabled = false;
+                            overlay.style.display = 'none';
+                        });
+                    } else {
+                        field.disabled = false;
+                        overlay.style.display = 'none';
+                    }
+                });
+
+            }
+            return;
+                // Read file properties
+            fileParams = {};
+            data = [];
+            for(k=0;k<field.files.length;k++) {
+                console.log(typeof field);
+                //console.log(field.files[k]);
+                fileParams['files['+k+']'] = field.files[k];
+                data[k] = {name:field.files[k].name,size:field.files[k].size,type:field.files[k].type,lastModified:field.files[k].lastModified,lastModifiedDate:field.files[k].lastModifiedDate};
+                console.log(field.files[k]);
+            }
+
+
+        }
+    }
+    function FileDragHover(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.target.className = (e.type == "dragover" ? "hover" : "");
+    }
+    // file selection
+    function FileSelectHandler(e) {
+
+        // cancel event and hover styling
+        FileDragHover(e);
+
+        // fetch FileList object
+        var field = (e.target.files)?e.target:e.dataTransfer;
+        upload(field);
+
+    }
+    filedrag = Core.dom.element('filedrag');
+    filedrag.addEventListener("dragover", FileDragHover, false);
+    filedrag.addEventListener("dragleave", FileDragHover, false);
+    filedrag.addEventListener("drop", FileSelectHandler, false);
+
+
+
+    Core.debug = (Core.formParams('debug'))?true:false;
+    Core.log.debug = false;
+    Core.log.type = 'log';
+
+    // Preparing calls
+    var payloads = [];
+
+    payloads[0] = {url: '/_api', method: 'GET', params: {a: 1, b: '2', c: [1, 2]}};
+    payloads[1] = {url: '/_api?init=4', method: 'GET', params: {a: 1, b: '2', c: [1, 2]}};
+    payloads[2] = {url: '/_api?method=post', method: 'POST', params: {a: 1, b: '2', c: [1, 2]}};
+    payloads[3] = {url: '/_api?method=put', method: 'PUT', params: {a: 1, b: '2', c: [1, 2]}};
+    payloads[4] = {
+        url: '/_api?method=post-form',
+        contentType: 'form',
+        method: 'POST',
+        params: {a: 1, b: '2', c: [1, 2]}
+    }
+
+
+    Core.request.base = 'https://cloudframework.io/h/api';
+    Core.dom.addHTML("console","Core.debug:"+Core.debug+"\n");
+    Core.dom.addHTML("console","Core.log.debug:"+Core.log.debug+"\n");
+    Core.dom.addHTML("console","Core.log.type:"+Core.log.type+"\n");
+
+    Core.dom.addHTML("console","Core.version:"+Core.version+"\n");
+    Core.dom.addHTML("console","Core.log.type:"+Core.log.type+"\n");
+    Core.dom.addHTML("console","Core.request.base:"+Core.request.base+"\n");
+    Core.dom.addHTML("console","---------------\n");
+
+    // PARAMS
+    function formParams() {
+        Core.dom.addHTML("console", "Core.params():" + Core.params() + "\n");
+        Core.dom.addHTML("console", "Core.params(0):" + Core.params(0) + "\n");
+        Core.dom.addHTML("console", "Core.formParams():" + Core.formParams() + "\n");
+        Core.dom.addHTML("console", "Core.formParams('var1'):" + Core.formParams('var1') + "\n");
+        Core.dom.addHTML("console","---------------\n");
+
+    }
+    function  configParams() {
+
+        Core.dom.addHTML("console","Core.config.get():"+JSON.stringify(Core.config.get())+"\n");
+        Core.dom.addHTML("console","Core.config.get('API-SERVER'):"+Core.config.get('API-SERVER')+"\n");
+        Core.dom.addHTML("console","Core.config.get('other'):"+Core.config.get('other')+"\n");
+        Core.config.set('other','value1');
+        Core.dom.addHTML("console","Core.config.set('other','value1') \n");
+        Core.dom.addHTML("console","Core.config.get('other'):"+Core.config.get('other')+"\n");
+        Core.dom.addHTML("console","---------------\n");
+
+    }
+
+
+    // REQUEST
+    function  request() {
+        Core.dom.addHTML("console", "---------------\n");
+        Core.request.addHeader('test', 'value');
+        Core.dom.addHTML("console", "Core.request.addHeader('test','value') \n");
+        Core.dom.addHTML("console", "Core.request.headers:" + JSON.stringify(Core.request.headers) + "\n");
+        Core.request.removeHeader('test');
+        Core.dom.addHTML("console", "Core.request.removeHeader('test') \n");
+        Core.dom.addHTML("console", "Core.request.headers:" + JSON.stringify(Core.request.headers) + "\n");
+        Core.request.resetHeader();
+        Core.dom.addHTML("console", "Core.request.resetHeader() \n");
+        Core.dom.addHTML("console", "Core.request.headers:" + JSON.stringify(Core.request.headers) + "\n");
+        Core.dom.addHTML("console", "Core.request.base = '" + Core.request.base + "'; \n");
+        // -- simple GET
+        Core.dom.addHTML("console", "Core.request.get('/_api') \n");
+        Core.request.get('/_api');
+
+        Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[0])+") \n");
+        Core.request.call(payloads[0]);
+        Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[1])+") \n");
+        Core.request.call(payloads[1]);
+        Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[2])+") \n");
+        Core.request.call(payloads[2]);
+        Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[3])+") \n");
+        Core.request.call(payloads[3]);
+        Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[4])+") \n");
+        Core.request.call(payloads[4]);
+    }
+    function  binding() {
+
+    }
+
+</script>
+</body>
+</html>
+

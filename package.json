@@ -1,0 +1,33 @@
+{
+  "name": "js-cloudframework",
+  "version": "1.0.0",
+  "description": "A JS Core library to speed up app development based on Cloudframework filosofy",
+  "main": "src/js-cloudframework.js",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "cloudframework",
+    "js-cloudframework"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CloudFramework-io/js-cloudframework"
+  },
+  "author": "Héctor López",
+  "license": "MIT",
+  "dependencies": {
+    "bower": "^1.8.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "js-cookie": "^2.1.4"
+  },
+  "scripts": {
+    "postinstall": "bower install --allow-root",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "gulp serve",
+    "build": "gulp build",
+    "server": "cd test; python -m SimpleHTTPServer 8000",
+    "testserver": "cd test; python -m simple_server.py"
+  }
+}
