@@ -1,9 +1,9 @@
 {
   "name": "js-cloudframework",
-  "description": "A JS Core library to speed up app development based on Cloudframework filosofy",
-  "main": "src/js-cloudframework.js",
+  "description": "A JS Core library to speed up app development based on Cloudframework philosfy",
+  "main": "js-cloudframework.min.js",
   "authors": [
-    "Héctor López"
+    "Héctor López","Adrián Martínez"
   ],
   "license": "MIT",
   "keywords": [
