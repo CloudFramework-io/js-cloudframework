@@ -627,6 +627,7 @@
 })(typeof self !== 'undefined' ? self : this);
 
 Core = new function () {
+
     this.version = '1.0';
     this.debug = false;
     this.params = function (pos) {
@@ -830,7 +831,7 @@ Core = new function () {
             // Int the call
             fetch(endpoint, {
                 method: payload['method'],
-                headers: Core.request.headers,
+                headers: payload.headers,
                 mode:payload['mode'] ,
                 credentials: payload['credentials'],
                 body: payload['body']
@@ -921,7 +922,6 @@ Core = new function () {
                 binds[service]= {config:binds[service]['config']};
             }
         };
-
 
         // Add Service
         // config requires:
@@ -1043,6 +1043,36 @@ Core = new function () {
             Core.config.config[configvar]=value;
             return true;
         }
+    };
+
+    // Bind function based on promises
+    this.bind = function(functions,callback,errorcallback) {
+
+        // OK CALLBACK
+        if (typeof callback == 'undefined' || callback==null) {
+            callback = function(response) {
+                console.log(response);
+            }
+        }
+
+        // ERROR CALLBACK
+        if (typeof errorcallback == 'undefined' || errorcallback==null)
+            errorcallback = callback;
+
+        var states = [];
+        if(typeof functions == 'function') functions = [functions];
+        // Execute all the function generating a promise for each of them
+        for(k in functions) {
+            states[k] = new Promise(functions[k]);
+        }
+
+        //
+        var promises = Promise.all(states);
+        promises.then(function(){
+            callback({success:true});
+        }, function() {
+            errorcallback({success:false});
+        })
     };
 
     // File input helper
