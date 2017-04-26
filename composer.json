@@ -1,5 +1,5 @@
 {
-  "name": "cloudframework-io/js-cloutframework",
+  "name": "cloudframework-io/js-cloudframework",
   "keywords": ["appengine", "google", "framework", "javascript","cloudframwork"],
   "description": "javascript framework to develop API and Web applications optimized to interact with CloudFramework",
   "minimum-stability": "dev",
