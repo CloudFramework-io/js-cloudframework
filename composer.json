@@ -1,0 +1,11 @@
+{
+  "name": "cloudframework-io/js-cloutframework",
+  "keywords": ["appengine", "google", "framework", "javascript","cloudframwork"],
+  "description": "javascript framework to develop API and Web applications optimized to interact with CloudFramework",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    { "name": "Héctor López", "email": "hl@cloudframework.io"},
+    { "name": "Adrian Martínez", "email": "am@cloudframework.io"}
+  ]
+}
