@@ -1,7 +1,8 @@
 {
   "name": "js-cloudframework",
+  "main": "js-cloudframework.min.js",
   "description": "A JS Core library to speed up app development based on Cloudframework philosfy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "authors": [
     "Héctor López",
     "Adrián Martínez"
@@ -13,21 +14,14 @@
   ],
   "homepage": "https://github.com/CloudFramework-io/js-cloudframework",
   "ignore": [
-    "**/.*",
+    ".*",
+    "*.md",
+    "*.json",
     "node_modules",
     "bower_components",
     "test",
-    "tests",
     "src",
-    "*.json",
-    "readme.md",
-    "README.md",
-    ".*",
-    "LICENSE",
-    "gulpfile.js",
-    "bower.json",
-    ".bower.json"
-
+    "LICENSE"
   ],
   "devDependencies": {
     "js-cookie": "^2.1.4",
