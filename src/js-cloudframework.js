@@ -95,7 +95,6 @@ Core = new function () {
             Core.log.print(title,content,true);
         };
     };
-
     // It requires fetch polyfill: bower install fetch --save
     this.request = new function () {
         this.token = ''; // X-DS-TOKEN sent in all calls
@@ -246,26 +245,55 @@ Core = new function () {
         };
     };
     this.cache =  new function () {
+
         this.isAvailable = true;
+
         if (typeof(Storage) == "undefined") {
             Core.error.add('Cache is not supported in this browser');
             this.available = false;
         };
 
         this.set = function (key, value) {
+            if (Core.debug) Core.log.printDebug('Core.cache.set("' + key+'",..)');
+
             if (Core.cache.isAvailable) {
+                key = 'CloudFrameWorkCache_'+key;
+                if(typeof value == 'object') value = JSON.stringify(value);
+                else value = JSON.stringify({__object:value});
+
+                // Compress
+                value = LZString.compress(value);
                 localStorage.setItem(key, value);
+
+                // Return
+                return true;
             }
+            return false;
         };
-        this.get = function (key, value) {
+        this.get = function (key) {
+            if (Core.debug) Core.log.printDebug('Core.cache.get("' + key+'",..)');
+
             if (Core.cache.isAvailable) {
-                localStorage.getItem(key);
+                key = 'CloudFrameWorkCache_'+key;
+                var ret = localStorage.getItem(key);
+                if(typeof ret != undefined && ret != null) {
+                    ret = JSON.parse(LZString.decompress(ret));
+                    if(typeof ret['__object'] != 'undefined') ret = ret.__object;
+                }
+                return ret;
+
             }
+            return false;
         };
+
         this.delete = function (key) {
+            if (Core.debug) Core.log.printDebug('Core.cache.delete("' + key+'",..)');
             if (Core.cache.isAvailable) {
+                key = 'CloudFrameWorkCache_'+key;
                 localStorage.removeItem(key);
+                return true;
             }
+            return false;
         };
     };
     this.cookies =  new function () {
@@ -416,6 +444,146 @@ Core = new function () {
             return true;
         }
     };
+    this.localize = new function () {
+        this.dics = null;
+        this.lang = 'en';
+
+        if(null==this.dics && (body = document.getElementsByTagName("BODY")[0].getAttribute("core-localize"))) {
+            this.dics = JSON.parse(body);
+        } else {
+            this.dics={};
+        }
+
+        if((lang = document.getElementsByTagName("BODY")[0].getAttribute("core-lang"))) {
+            this.lang = lang;
+        }
+
+        // Return a dictionary tag
+        this.get = function(localizevar) {
+            if(Core.debug) Core.log.printDebug('Core.localize.get("'+localizevar+'")','',true);
+            if(typeof  localizevar == 'undefined') {
+                return Core.localize.dics;
+            } else {
+                if(Core.formParams('_debugDics')) return localizevar
+                else return (typeof Core.localize.dics[localizevar] != 'undefined')?Core.localize.dics[localizevar]:localizevar;
+
+            }
+        }
+
+        this.set = function(localizevar,value) {
+            if(Core.debug) Core.log.printDebug('Core.debug.set("'+localizevar+'","'+value+'")','',true);
+            Core.localize.dics[localizevar]=value;
+            return true;
+        }
+
+        this.addFromId = function(id) {
+            if((element = document.getElementById(id))) {
+                if(localize = element.getAttribute("core-localize")) {
+                    return(Core.localize.add(JSON.parse(localize)));
+                }
+            }
+            return false;
+        }
+
+        this.add = function(dic) {
+            if(Core.debug) Core.log.printDebug('Core.debug.set("'+JSON.stringify(dic)+'","'+value+'")','',true)
+            for(k in dic) {
+                Core.localize.dics[k]=dic[k];
+            }
+            return true;
+        }
+    };
+
+    this.user = new function () {
+        this.info = {};
+        this.auth = false;
+        this.cookieVar = null;
+
+        this.setAuth = function(val,cookieVar) {
+
+            Core.user.info = {};
+            Core.user.credentials = {};
+            Core.user.auth=false;
+            Core.user.cookieVar = null;
+            Core.cache.set('CloudFrameWorkAuthUser',{});
+
+            if(val) {
+                cookieValue = Core.cookies.get(cookieVar);
+                if(typeof cookieValue == 'undefined' || !cookieValue) {
+                    Core.error.add('Core.user.setAuth(true,"'+cookieVar+'"), cookieVar does not exist');
+                } else {
+                    Core.user.auth=true;
+                    Core.user.cookieVar = cookieVar;
+                    Core.cache.set('CloudFrameWorkAuthUser',{__id:cookieValue});
+                    Core.user.info = {__id:cookieValue};
+
+                }
+            }
+
+        };
+
+        // If you want to recover data avoiding to do extra call.. use init
+        this.init = function (cookieVar) {
+
+            var value = Core.cookies.get(cookieVar);
+            if(!(value = Core.cookies.get(cookieVar))) {
+                Core.user.setAuth(false);
+            } else {
+                var cache = null;
+                if(cache = Core.cache.get('CloudFrameWorkAuthUser')) {
+                    if(typeof cache['__id'] == undefined || cache['__id']!=value) {
+                        Core.user.setAuth(false);
+                    } else {
+                        Core.user.auth=true;
+                        Core.user.info = cache;
+                    }
+                }
+            }
+        }
+
+        // Says if a user is auth
+        this.isAuth = function() {
+            return (Core.user.auth==true);
+        }
+
+        this.add = function(key,value) {
+
+            if(typeof key =='undefined') return;
+
+            if(typeof key =='string' && key=='__id') {
+                Core.error.add('Core.user.add','key can not be __id');
+                return false;
+            }
+
+            if(Core.user.isAuth()) {
+                if(typeof key == 'object') {
+                    for(k in key) {
+                        Core.user.info[k] = key[k];
+                    }
+                } else {
+                    Core.user.info[key] = value;
+                }
+                Core.cache.set('CloudFrameWorkAuthUser',Core.user.info);
+                return true;
+            } else {
+                Core.error.add('Core.user.add','Core.user.isAuth() is false');
+                return false;
+            }
+        }
+
+        this.get = function(key) {
+            if(typeof key =='undefined') return;
+
+            if(Core.user.isAuth()) {
+                return(Core.user.info[key]);
+
+            } else {
+                Core.error.add('Core.user.get','Core.user.isAuth() is false');
+                return false;
+            }
+        }
+    };
+
 
     // Bind function based on promises
     this.bind = function(functions,callback,errorcallback) {
@@ -448,6 +616,7 @@ Core = new function () {
     };
 
     // File input helper
+    // field expeted a dom.input of type file
     this.fileInput = function (field,payloads) {
         var ret = {length:0,error:false,errorMsg:'',params:[],files:[]};
         if(typeof field =='object') {

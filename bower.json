@@ -2,7 +2,7 @@
   "name": "js-cloudframework",
   "main": "js-cloudframework.js",
   "description": "A JS Core library to speed up app development based on Cloudframework philosfy",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "authors": [
     "Héctor López",
     "Adrián Martínez"
@@ -25,6 +25,7 @@
   ],
   "devDependencies": {
     "js-cookie": "^2.1.4",
-    "fetch": "^2.0.3"
+    "fetch": "^2.0.3",
+    "lz-string": "^1.4.4"
   }
 }

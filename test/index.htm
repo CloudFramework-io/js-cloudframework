@@ -1,6 +1,7 @@
 <html>
 <head>
-    <style>
+        <meta charset="UTF-8"/>
+        <style>
         #filedrag
         {
             font-weight: bold;
@@ -37,91 +38,160 @@
         }​
     </style>
 </head>
-<body core-config='{"API-SERVER":"https://cloudframework.io/h/api"}'>
+<body core-config='{"defaultCoreRequestBase":"https://cloudframework.io/h/api"}'
+      core-localize='{"tag1":"Hello world"}'>
 <h1>Testing js-cloudframework</h1>
 <b>?debug</b> to activate debug
 <h2>Basics (<a href="javascript:formParams();">test</a>)</h2>
-<p>
-    - Activate Core debug: <b>Core.debug = true;</b><br/>
-<i>It will activate debug for each method of Core. It requires Core.log.debug = true;</i>
-</p>
+    <p>
+        - Activate Core debug: <b>Core.debug = true;</b><br/>
+    <i>It will activate debug for each method of Core. It requires Core.log.debug = true;</i>
+    </p>
 
-<p>
-    - Activate logs debug: <b>Core.logs.debug = true;</b><br/>
-    <i>It will show debug logs</i>
-</p>
+    <p>
+        - Activate logs debug: <b>Core.logs.debug = true;</b><br/>
+        <i>It will show debug logs</i>
+    </p>
 
-<p>
-    - Send logs to dom id elelement: <b>Core.logs.type = 'dom.id elemenet';</b><br/>
-    <i>It will send the logs instead to console.log to a dom id element</i>
-</p>
-<p>
-    - Get params of a url: <b>Core.params([(int)position]);</b><br/>
-    <i>It takes from a url /a/b/c Core.params(0) -> a,Core.params(1) -> b, or Core.params() -> a,b,c. If position does not exist it returns <b>null</b></i>
-</p>
-<p>
-    - Get formParams of a GET url: <b>Core.formParams([(string)varname]);</b><br/>
-    <i>It takes from a url ?var1=a,var2=b Core.formParams('var1') -> a,Core.formParams('var2') -> b, or Core.formParams() -> var1=a&var2=b. If varname does not exist it returns <b>null</b></i>
-</p>
+    <p>
+        - Send logs to dom id elelement: <b>Core.logs.type = 'dom.id elemenet';</b><br/>
+        <i>It will send the logs instead to console.log to a dom id element</i>
+    </p>
+    <p>
+        - Get params of a url: <b>Core.params([(int)position]);</b><br/>
+        <i>It takes from a url /a/b/c Core.params(0) -> a,Core.params(1) -> b, or Core.params() -> a,b,c. If position does not exist it returns <b>null</b></i>
+    </p>
+    <p>
+        - Get formParams of a GET url: <b>Core.formParams([(string)varname]);</b><br/>
+        <i>It takes from a url ?var1=a,var2=b Core.formParams('var1') -> a,Core.formParams('var2') -> b, or Core.formParams() -> var1=a&var2=b. If varname does not exist it returns <b>null</b></i>
+    </p>
 
 
 <h2>Config Vars (<a href="javascript:configParams();">test</a>)</h2>
-Add in <b>&lt;body></b> the attribute: <b>core-config='{var:value}'</b> to have default . In this example:
-<pre>
-    &ltbody core-config='{"API-SERVER":"https://cloudframework.io/h/api"}'>
-</pre>
+    Add in <b>&lt;body></b> the attribute: <b>core-config='{var:value}'</b> to have default . In this example:
+    <pre>
+        &ltbody core-config='{"defaultCoreRequestBase":"https://cloudframework.io/h/api"}'>
+    </pre>
+    <p>
+        - Get a config params: <b>Core.config.get([(string)varname]);</b><br/>
+        <i>Returns a config value  Core.config.get('defaultCoreRequestBase') -> https://cloudframework.io/h/api. If varname does not exist it returns <b>null</b></i>
+    </p>
+
+<h2>Localization</h2>
+    Add in <b>&lt;body></b> the attribute: <b>core-localize='{"var":"value"}'</b> to have default dictionary. In this example:
+    <pre>
+        &ltbody core-localize='{"tag1":"Hello world"}'>
+    </pre>
+    <p>
+        - Show a tag: <b>Core.localize.get([(string)varname]);</b> and Set a tag <b>Core.localize.set([(string)varname,value]);</b><br/>
+        <i>Returns a localized value.
+            [<a href="javascript:alert(Core.localize.get('tag1'));">Core.localize.get('tag1')</a>]
+            [<a href="javascript:alert(Core.localize.get('tag;a1;noexist'));">tag;a1;noexist</a>]
+            [<a href="javascript:Core.localize.set('tag;a1;noexist','Now I exist');alert('ok');">Core.localize.set('tag;a1;noexist','Now I exist'));</a>]
+        </i>
+    </p>
+
+    <p>
+    - Add dictionaries from an object <b>Core.localize.add({var:value,..});</b><br/>
+    - Add dictionaries from an attribute 'core-localize' in the HTML <b>Core.localize.addFromId([(string)dom_id_aatribute]);</b><br/>
+    <i>
+        [<a href="javascript:alert(Core.localize.addFromId('sendData'));">Core.localize.addFromId('sendData')</a>]
+        <input type="button" value="test" id="sendData" core-localize='{"error_empty":"The field is empty"}' onclick="alert(Core.localize.get('error_empty'))">
+        &lt;input type="button" value="test" id="sendData" core-localize='{"error_empty":"The field is empty"}'  onclick="alert(Core.localize.get('error_empty'))">
+            </i>
+    </p>
+
+<h2>Cache Vars</h2>
+Use <b>Core.cache.set(key,value)</b>, <b>Core.cache.get(key)</b> and <b>Core.cache.delete(key)</b> to keep data in the localStorageCache if the browser supports it.
+
 <p>
-    - Get a config params: <b>Core.config.get([(string)varname]);</b><br/>
-    <i>Returns a config value  Core.config.get('API-SERVER') -> https://cloudframework.io/h/api. If varname does not exist it returns <b>null</b></i>
+    - <a href="javascript:alert(Core.cache.set('testVar',{key1:'value1'}))">Core.cache.set('testVar',{key1:'value1'})</a><br/>
+    - <a href="javascript:alert(Core.cache.set('testVar2','Hola qué tal estás?'))">Core.cache.set('testVar','Hola qué tal estás?')</a><br/>
+    - <a href="javascript:alert(Core.cache.get('testVar'))">Core.cache.get('testVar')</a><br/>
+    - <a href="javascript:alert(Core.cache.get('testVar2'))">Core.cache.get('testVar2')</a><br/>
+    - <a href="javascript:alert(Core.cache.delete('testVar'))">Core.cache.delete('testVar')</a><br/>
+    - <a href="javascript:alert(Core.cache.delete('testVar2'))">Core.cache.delete('testVar2')</a><br/>
 </p>
 
+<h2>Auth user (<a href="javascript:testAuth();">test</a>)</h2>
+    Use <b>Core.user</b> will handle all relative to the auth user.
+    <p>
+    - <a href="javascript:alert(Core.user.isAuth())">Core.user.isAuth()</a><br/>
+    - <a href="javascript:alert(Core.user.add(User_id,95))">Core.user.add(User_id,95)</a><br/>
+    - <a href="javascript:alert(Core.user.add({var1:'a',var2:[10,20],var3:{a:34}}))">Core.user.add({var1:'a',var2:[10,20],var3:{a:34})</a><br/>
+        - <a href="javascript:alert(Core.user.get('User_id'))">Core.user.get('User_id')</a><br/>
+        - <a href="javascript:alert(Core.user.get('var1'))">Core.user.get('var1')</a><br/>
+        - <a href="javascript:alert(Core.user.get('var2'))">Core.user.get('var2')</a><br/>
+        - <a href="javascript:alert(Core.user.get('var3'))">Core.user.get('var3')</a><br/>
+
+    </p>
+
 <h2>Request Async Calls  (<a href="javascript:request();">test</a>)</h2>
-Based on <a href="https://github.com/github/fetch" target="_blank">fetch polyfill</a>
+    Based on <a href="https://github.com/github/fetch" target="_blank">fetch polyfill</a>
 
-<b>Core.request</b> helps you to send GET,POST,PUT,DELETE calls with cloudframework headers standards.
+    <b>Core.request</b> helps you to send GET,POST,PUT,DELETE calls with cloudframework headers standards.
 
-<br/>
-- <i>Core.request.base = 'https://xx'</i> it will add the base url to the rest of the calls. equal to '' to avoid base. <br/>
-<br/>
-- <i>Core.request.call(payload[,callback function() {}]);</i><br/>
-<b>payload:</b>
-<li>* url: [http..]/path (if it starts with http it will ignore Core.request.base)</li>
-<li>* method: GET, POST, PUT, DELETE</li>
-<li>credentials: none(default),include(to keep session in the server),same-origin</li>
-<li>mode: cors(default),no-cors</li>
-<li>params: {key1:value1,key2:value2}</li>
-<li>responseType: json(default),html</li>
-<li>contentType: json(default),form(required to upload files)</li>
-<br/>
-If no function is passed in the call, the following <b>callback</b> function will be generated:
-<pre>
-    callback = function(response) {
-        console.log(response);
-    }
-</pre>
+    <br/>
+    - <i>Core.request.base = 'https://xx'</i> it will add the base url to the rest of the calls. equal to '' to avoid base. <br/>
+    <br/>
+    - <i>Core.request.call(payload[,callback function() {}]);</i><br/>
+    <b>payload:</b>
+    <li>* url: [http..]/path (if it starts with http it will ignore Core.request.base)</li>
+    <li>* method: GET, POST, PUT, DELETE</li>
+    <li>credentials: none(default),include(to keep session in the server),same-origin</li>
+    <li>mode: cors(default),no-cors</li>
+    <li>params: {key1:value1,key2:value2}</li>
+    <li>responseType: json(default),html</li>
+    <li>contentType: json(default),form(required to upload files)</li>
+    <br/>
+    If no function is passed in the call, the following <b>callback</b> function will be generated:
+    <pre>
+        callback = function(response) {
+            console.log(response);
+        }
+    </pre>
 <h2>Send multple file test drag & drop</h2>
-<div id="overlay"> Uploading </div>
-<div id="filedrag">
-<pre>
-&lt;input name='files[]' type="file" onchange="upload(this)" multiple>
-</pre>
-<input name='files[]' type="file" onchange="upload(this)" multiple>
-</div>
-<br/>
-<div id="filelinks"></div>
+    <div id="overlay"> Uploading </div>
+    <div id="filedrag">
+    <pre>
+    &lt;input name='files[]' type="file" onchange="upload(this)" multiple>
+    </pre>
+    <input name='files[]' type="file" onchange="upload(this)" multiple>
+    </div>
+    <br/>
+    <div id="filelinks"></div>
+
 <h2>Bind concurrent Async Calls to functions (<a href="javascript:binding();">test</a>)</h2>
-<b>Core.service</b> helps you to bind concurrent async calls to a function avoding to repeat the same call n times.
-This service uses <b>Core.request</b> and the syntax is:
+    <b>Core.service</b> helps you to bind concurrent async calls to a function avoding to repeat the same call n times.
+    This service uses <b>Core.request</b> and the syntax is:
+    <pre>
+        Core.services.set(NAME_OF_SERVICE,CORE_REQUEST_PAYLOAD);
+        Core.service.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 1});
+        Core.service.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 2});
+    </pre>
+    The second bind will return the response cached from the previous one. If you need to avoid the
+    cache in the bind you can use:
+    <pre>
+            Core.services.reset(NAME_OF_SERVICE);
+    </pre>
+
+<h2>Bind multiple functions (<a href="javascript:bindGlobal();">test</a>)</h2>
+<b>Core.bind([functions],function(response){if(respose.success)...});</b>
+helps you to bind concurrent async functions and only continue when all of them have finished using promises
+
 <pre>
-    Core.services.set(NAME_OF_SERVICE,CORE_REQUEST_PAYLOAD);
-    Core.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 1});
-    Core.bind(NAME_OF_SERVICE,function(response){ CODE OF FUNCTION 2});
-</pre>
-The second bind will return the response cached from the previous one. If you need to avoid the
-cache in the bind you can use:
-<pre>
-        Core.services.reset(NAME_OF_SERVICE);
-</pre>
+        function f1(resolve,reject) {
+            return(resolve());
+        }
+        function f2(resolve,reject) {
+            alert(2);
+            return(resolve());
+        }
+        Core.bind([f1,f2],function(response) {
+            if(response.success) alert('ok');
+            else alert(error);
+         });
+    </pre>
 
 <br/>
 <br/>
@@ -139,8 +209,6 @@ cache in the bind you can use:
         </td>
     </tr>
 </table>
-
-
 
 <script src="/js/js-cloudframework.js"></script>
 <script>
@@ -238,13 +306,16 @@ cache in the bind you can use:
     }
 
 
-    Core.request.base = 'https://cloudframework.io/h/api';
+
     Core.dom.addHTML("console","Core.debug:"+Core.debug+"\n");
     Core.dom.addHTML("console","Core.log.debug:"+Core.log.debug+"\n");
     Core.dom.addHTML("console","Core.log.type:"+Core.log.type+"\n");
 
     Core.dom.addHTML("console","Core.version:"+Core.version+"\n");
     Core.dom.addHTML("console","Core.log.type:"+Core.log.type+"\n");
+
+    Core.request.base = Core.config.get('defaultCoreRequestBase');
+    Core.dom.addHTML("console","Core.request.base = Core.config.get('defaultCoreRequestBase')\n");
     Core.dom.addHTML("console","Core.request.base:"+Core.request.base+"\n");
     Core.dom.addHTML("console","---------------\n");
 
@@ -260,7 +331,7 @@ cache in the bind you can use:
     function  configParams() {
 
         Core.dom.addHTML("console","Core.config.get():"+JSON.stringify(Core.config.get())+"\n");
-        Core.dom.addHTML("console","Core.config.get('API-SERVER'):"+Core.config.get('API-SERVER')+"\n");
+        Core.dom.addHTML("console","Core.config.get('defaultCoreRequestBase'):"+Core.config.get('defaultCoreRequestBase')+"\n");
         Core.dom.addHTML("console","Core.config.get('other'):"+Core.config.get('other')+"\n");
         Core.config.set('other','value1');
         Core.dom.addHTML("console","Core.config.set('other','value1') \n");
@@ -298,9 +369,38 @@ cache in the bind you can use:
         Core.dom.addHTML("console", "Core.request.call("+JSON.stringify(payloads[4])+") \n");
         Core.request.call(payloads[4]);
     }
-    function  binding() {
 
+    function  bindGlobal() {
+        Core.dom.addHTML("console", "Core.bind([f1,f2],function(response) init \n");
+
+        function f1(resolve,reject) {
+            Core.dom.addHTML("console", " -f1 \n");
+            return(resolve());
+        }
+        function f2(resolve,reject) {
+            Core.dom.addHTML("console", " -f2 \n");
+            return(resolve());
+        }
+
+        Core.bind([f1,f2],function(response) {
+            Core.dom.addHTML("console", "Core.bind([f1,f2],function(response) ended \n");
+            if(!response.success) alert('error');
+        });
     }
+
+    Core.user.init('testCookie');
+    function  testAuth() {
+        Core.cookies.set('testCookie','value');
+        if(Core.user.isAuth()) {
+            alert('User is auth. Change to Core.user.setAuth(false)');
+            Core.user.setAuth(false);
+        } else {
+            alert('User is not Auth. Change to Core.user.setAuth(true,"testCookie")');
+            Core.user.setAuth(true,'testCookie');
+        }
+    }
+
+
 
 </script>
 </body>
