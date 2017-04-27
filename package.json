@@ -28,9 +28,9 @@
   "scripts": {
     "postinstall": "bower install --allow-root",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "gulp serve",
-    "build": "gulp build",
-    "deploy": "gulp deploy",
+    "serve": "bower update; gulp serve",
+    "build": "bower update; gulp build",
+    "deploy": "bower update; gulp deploy",
     "server": "cd test; python -m SimpleHTTPServer 8000",
     "testserver": "cd test; python -m simple_server.py"
   }
