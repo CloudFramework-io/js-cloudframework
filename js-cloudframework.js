@@ -1130,7 +1130,7 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.0.7';
+    this.version = '1.0.8';
     this.debug = false;
     this.params = function (pos) {
         var path = window.location.pathname.split('/');
@@ -1625,18 +1625,21 @@ Core = new function () {
     };
 
     this.user = new function () {
-        this.info = {};
-        this.auth = false;
-        this.cookieVar = null;
+        this.auth = false;      // Authenticated true or false
+        this.info = {};         // User information when authenticated
+        this.cookieVar = null;  // Cookie to use for authentication id
 
+        // Set Authentication to true of false
         this.setAuth = function(val,cookieVar) {
 
+            // No authentication values by default
             Core.user.info = {};
             Core.user.credentials = {};
             Core.user.auth=false;
             Core.user.cookieVar = null;
             Core.cache.set('CloudFrameWorkAuthUser',{});
 
+            // Activating Authentication
             if(val) {
                 cookieValue = Core.cookies.get(cookieVar);
                 if(typeof cookieValue == 'undefined' || !cookieValue) {
@@ -1649,6 +1652,11 @@ Core = new function () {
                     Core.user.info = {__id:cookieValue};
 
                 }
+            }
+            // Finalizing deactivating authentication
+            else {
+                // Delete cookieVar if it is passed
+                if(typeof cookieVar != 'undefined') Core.cookies.remove(cookieVar);
             }
             return true;
 

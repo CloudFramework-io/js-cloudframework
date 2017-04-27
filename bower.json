@@ -2,7 +2,7 @@
   "name": "js-cloudframework",
   "main": "js-cloudframework.js",
   "description": "A JS Core library to speed up app development based on Cloudframework philosfy",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "authors": [
     "Héctor López",
     "Adrián Martínez"
