@@ -1130,7 +1130,7 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.0.8';
+    this.version = '1.1.0';
     this.debug = false;
     this.params = function (pos) {
         var path = window.location.pathname.split('/');
@@ -1309,7 +1309,7 @@ Core = new function () {
                     else endpoint+='&';
                     endpoint+=serialize;
                 }
-            } else {
+            } else if(payload['method']!='DELETE') {
                 // Preparing the content type
                 if(payload['contentType']=='json') {
                     payload['headers']['Content-Type'] = 'application/json';
@@ -1329,14 +1329,19 @@ Core = new function () {
 
             // Debug
             if(Core.debug) Core.log.printDebug('Core.request.call',payload,true);
+
             // Int the call
-            fetch(endpoint, {
+            var call = {
                 method: payload['method'],
                 headers: payload.headers,
                 mode:payload['mode'] ,
-                credentials: payload['credentials'],
-                body: payload['body']
-            }).then(function (response) {
+                credentials: payload['credentials']
+            };
+
+            // Avoid to add body if payload['body'] does not exist
+            if(typeof payload['body'] != 'undefined' && payload['body']!= null) call['body'] = payload['body'];
+
+            fetch(endpoint, call).then(function (response) {
                 if(Core.debug) Core.log.printDebug('Core.request.call returning from: '+endpoint,'Tranforming from: '+payload['responseType'],true);
                 if(payload['mode']=='no-cors') {
                     return(response);
