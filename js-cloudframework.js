@@ -1130,7 +1130,7 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.0';
+    this.version = '1.0.7';
     this.debug = false;
     this.params = function (pos) {
         var path = window.location.pathname.split('/');
@@ -1641,6 +1641,7 @@ Core = new function () {
                 cookieValue = Core.cookies.get(cookieVar);
                 if(typeof cookieValue == 'undefined' || !cookieValue) {
                     Core.error.add('Core.user.setAuth(true,"'+cookieVar+'"), cookieVar does not exist');
+                    return false;
                 } else {
                     Core.user.auth=true;
                     Core.user.cookieVar = cookieVar;
@@ -1649,6 +1650,7 @@ Core = new function () {
 
                 }
             }
+            return true;
 
         };
 
@@ -1676,27 +1678,41 @@ Core = new function () {
             return (Core.user.auth==true);
         }
 
-        this.add = function(key,value) {
+        this.add = function(data) {
 
-            if(typeof key =='undefined') return;
-
-            if(typeof key =='string' && key=='__id') {
-                Core.error.add('Core.user.add','key can not be __id');
+            if(typeof data !='object') {
+                Core.error.add('Core.user.add(data)','data is not an object');
                 return false;
             }
-
             if(Core.user.isAuth()) {
-                if(typeof key == 'object') {
-                    for(k in key) {
-                        Core.user.info[k] = key[k];
-                    }
-                } else {
-                    Core.user.info[key] = value;
+                for(k in data) {
+                    Core.user.info[k] = data[k];
                 }
                 Core.cache.set('CloudFrameWorkAuthUser',Core.user.info);
                 return true;
             } else {
                 Core.error.add('Core.user.add','Core.user.isAuth() is false');
+                return false;
+            }
+        }
+
+        this.set = function(key,value) {
+
+            if(typeof key !='string') {
+                Core.error.add('Core.user.set(key,value)','key is not a string');
+                return false;
+            }
+
+            if(Core.user.isAuth()) {
+                if(key=='__id') {
+                    Core.error.add('Core.user.set(key,value)','key can not be __id');
+                    return false;
+                }
+                Core.user.info[key] = value;
+                Core.cache.set('CloudFrameWorkAuthUser',Core.user.info);
+                return true;
+            } else {
+                Core.error.add('Core.user.set(key,value)','Core.user.isAuth() is false');
                 return false;
             }
         }
@@ -1709,6 +1725,17 @@ Core = new function () {
 
             } else {
                 Core.error.add('Core.user.get','Core.user.isAuth() is false');
+                return false;
+            }
+        }
+
+        this.reset = function() {
+            if(Core.user.isAuth()) {
+                Core.user.info = {__id:Core.user.info['__id']};
+                Core.cache.set('CloudFrameWorkAuthUser',Core.user.info);
+                return true;
+            } else {
+                Core.error.add('Core.user.set(key,value)','Core.user.isAuth() is false');
                 return false;
             }
         }

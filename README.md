@@ -1,11 +1,11 @@
 # Bloombees
 
-### Project requirements
+## Project requirements
 
  - [Node](https://nodejs.org/en/)
  - [Yarn](https://yarnpkg.com/)
 
-#### Install/Update
+### Install/Update
 sudo npm i -g npm to update 
 sudo npm install -g bower
 sudo npm install --global webpack
@@ -15,3 +15,6 @@ sudo npm install --global webpack
  1. `yarn` - install dependencies
  2. `yarn serve` start hacking :)
  3. `yarn testserver` start testing :)
+ 
+### Testing
+http://phantomjs.org/download

@@ -115,14 +115,18 @@ Use <b>Core.cache.set(key,value)</b>, <b>Core.cache.get(key)</b> and <b>Core.cac
 
 <h2>Auth user (<a href="javascript:testAuth();">test</a>)</h2>
     Use <b>Core.user</b> will handle all relative to the auth user.
-    <p>
+    <br>
+        Assumtions cookie to use: testCookie</br>
     - <a href="javascript:alert(Core.user.isAuth())">Core.user.isAuth()</a><br/>
-    - <a href="javascript:alert(Core.user.add(User_id,95))">Core.user.add(User_id,95)</a><br/>
+    - <a href="javascript:alert(Core.user.set('User_id',95))">Core.user.set('User_id',95)</a><br/>
     - <a href="javascript:alert(Core.user.add({var1:'a',var2:[10,20],var3:{a:34}}))">Core.user.add({var1:'a',var2:[10,20],var3:{a:34})</a><br/>
         - <a href="javascript:alert(Core.user.get('User_id'))">Core.user.get('User_id')</a><br/>
         - <a href="javascript:alert(Core.user.get('var1'))">Core.user.get('var1')</a><br/>
         - <a href="javascript:alert(Core.user.get('var2'))">Core.user.get('var2')</a><br/>
         - <a href="javascript:alert(Core.user.get('var3'))">Core.user.get('var3')</a><br/>
+        - <a href="javascript:alert(Core.user.reset())">Core.user.reset()</a><br/>
+- <a href="javascript:alert(Core.user.setAuth(false))">Core.user.setAuth(false)</a><br/>
+
 
     </p>
 
