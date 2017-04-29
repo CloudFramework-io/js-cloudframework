@@ -58,12 +58,12 @@
         <i>It will send the logs instead to console.log to a dom id element</i>
     </p>
     <p>
-        - Get params of a url: <b>Core.params([(int)position]);</b><br/>
-        <i>It takes from a url /a/b/c Core.params(0) -> a,Core.params(1) -> b, or Core.params() -> a,b,c. If position does not exist it returns <b>null</b></i>
+        - Get params of a url: <b>Core.url.params([(int)position]);</b><br/>
+        <i>It takes from a url /a/b/c Core.url.params(0) -> a,Core.url.params(1) -> b, or Core.url.params() -> a,b,c. If position does not exist it returns <b>null</b></i>
     </p>
     <p>
-        - Get formParams of a GET url: <b>Core.formParams([(string)varname]);</b><br/>
-        <i>It takes from a url ?var1=a,var2=b Core.formParams('var1') -> a,Core.formParams('var2') -> b, or Core.formParams() -> var1=a&var2=b. If varname does not exist it returns <b>null</b></i>
+        - Get formParams of a GET url: <b>Core.url.formParams([(string)varname]);</b><br/>
+        <i>It takes from a url ?var1=a,var2=b Core.url.formParams('var1') -> a,Core.url.formParams('var2') -> b, or Core.url.formParams() -> var1=a&var2=b. If varname does not exist it returns <b>null</b></i>
     </p>
 
 
@@ -106,7 +106,7 @@ Use <b>Core.cache.set(key,value)</b>, <b>Core.cache.get(key)</b> and <b>Core.cac
 
 <p>
     - <a href="javascript:alert(Core.cache.set('testVar',{key1:'value1'}))">Core.cache.set('testVar',{key1:'value1'})</a><br/>
-    - <a href="javascript:alert(Core.cache.set('testVar2','Hola qué tal estás?'))">Core.cache.set('testVar','Hola qué tal estás?')</a><br/>
+    - <a href="javascript:alert(Core.cache.set('testVar2','Hola qué tal estás?'))">Core.cache.set('testVar2','Hola qué tal estás?')</a><br/>
     - <a href="javascript:alert(Core.cache.get('testVar'))">Core.cache.get('testVar')</a><br/>
     - <a href="javascript:alert(Core.cache.get('testVar2'))">Core.cache.get('testVar2')</a><br/>
     - <a href="javascript:alert(Core.cache.delete('testVar'))">Core.cache.delete('testVar')</a><br/>
@@ -291,9 +291,9 @@ helps you to bind concurrent async functions and only continue when all of them 
 
 
 
-    Core.debug = (Core.formParams('debug'))?true:false;
+    Core.debug = (Core.url.formParams('debug'))?true:false;
     Core.log.debug = false;
-    Core.log.type = 'log';
+    //Core.log.type = 'log';
 
     // Preparing calls
     var payloads = [];
@@ -325,10 +325,10 @@ helps you to bind concurrent async functions and only continue when all of them 
 
     // PARAMS
     function formParams() {
-        Core.dom.addHTML("console", "Core.params():" + Core.params() + "\n");
-        Core.dom.addHTML("console", "Core.params(0):" + Core.params(0) + "\n");
-        Core.dom.addHTML("console", "Core.formParams():" + Core.formParams() + "\n");
-        Core.dom.addHTML("console", "Core.formParams('var1'):" + Core.formParams('var1') + "\n");
+        Core.dom.addHTML("console", "Core.url.params():" + Core.url.params() + "\n");
+        Core.dom.addHTML("console", "Core.url.params(0):" + Core.url.params(0) + "\n");
+        Core.dom.addHTML("console", "Core.url.formParams():" + Core.url.formParams() + "\n");
+        Core.dom.addHTML("console", "Core.url.formParams('var1'):" + Core.url.formParams('var1') + "\n");
         Core.dom.addHTML("console","---------------\n");
 
     }
