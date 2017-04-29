@@ -1130,35 +1130,45 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.1.0';
+    this.version = '1.1.1';
     this.debug = false;
-    this.params = function (pos) {
-        var path = window.location.pathname.split('/');
-        path.shift();
-        if(typeof pos == 'undefined') {
-            return path;
-        } else {
-            return (path[pos])?path[pos]:null;
-        }
-    };
-    this.formParams = function (name) {
-        if(typeof name == 'undefined') {
-            var results = new RegExp('[\?&](.*)').exec(window.location.href);
-            if(null == results) return '';
-            else return results[1] || 0;
-        }
-        // Else search for the field
-        else {
-            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-            if (results == null) {
-                results = new RegExp('[\?&](' + name + ')[&#$]*').exec(window.location.href);
-                if (results == null) return null;
-                else return true;
+
+    this.url = new function () {
+        this.params = function(pos) {
+            var path = window.location.pathname.split('/');
+            path.shift();
+            if(typeof pos == 'undefined') {
+                return path;
             } else {
-                return results[1] || 0;
+                return (path[pos])?path[pos]:null;
             }
         }
+        this.formParams = function(name) {
+            if(typeof name == 'undefined') {
+                var results = new RegExp('[\?&](.*)').exec(window.location.href);
+                if(null == results) return '';
+                else return results[1] || 0;
+            }
+            // Else search for the field
+            else {
+                var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                if (results == null) {
+                    results = new RegExp('[\?&](' + name + ')[&#$]*').exec(window.location.href);
+                    if (results == null) return null;
+                    else return true;
+                } else {
+                    return results[1] || 0;
+                }
+            }
+        }
+        // hash, host, hostname, href, origin, pathname, port, protocol
+        this.parts = function(part) {
+            if(typeof part=='undefined') return window.location;
+            else return window.location[part];
+        }
     };
+
+    // Log class control. printDebug requires debug = true
     this.log =  new function () {
         this.debug = false;
         this.type = 'console';
@@ -1217,6 +1227,8 @@ Core = new function () {
         };
 
     };
+
+    // Error class control.
     this.error = new function () {
         this.add = function (title, content,separator) {
             // If no title, print:
@@ -1225,6 +1237,103 @@ Core = new function () {
             Core.log.print(title,content,true);
         };
     };
+
+    // No persistent data. If reload page the info will be lost.
+    this.data = new function () {
+
+        this.info = {};
+
+        this.add = function(data) {
+
+            if(typeof data !='object') {
+                Core.error.add('Core.data.add(data)','data is not an object');
+                return false;
+            }
+
+            for(k in data) {
+                Core.data.info[k] = data[k];
+            }
+            Core.cache.set('CloudFrameWorkAuthUser',Core.data.info);
+            return true;
+        }
+
+        this.set = function(key,value) {
+
+            if(typeof key !='string') {
+                Core.error.add('Core.data.set(key,value)','key is not a string');
+                return false;
+            }
+
+            Core.data.info[key] = value;
+            Core.cache.set('CloudFrameWorkAuthUser',Core.data.info);
+            return true;
+        }
+
+        this.get = function(key) {
+            if(typeof key =='undefined') return;
+
+            return(Core.data.info[key]);
+        }
+
+        this.reset = function() {
+            Core.data.info = {};
+        }
+    };
+
+    // Persistent data. Reloading the page the info will be kept in the localStorage compressed if the browser support it
+    // It requires LZString: bower install lz-string --save
+    this.cache =  new function () {
+
+        this.isAvailable = true;
+
+        if (typeof(Storage) == "undefined") {
+            Core.error.add('Cache is not supported in this browser');
+            this.available = false;
+        };
+
+        this.set = function (key, value) {
+            if (Core.debug) Core.log.printDebug('Core.cache.set("' + key+'",..)');
+
+            if (Core.cache.isAvailable) {
+                key = 'CloudFrameWorkCache_'+key;
+                if(typeof value == 'object') value = JSON.stringify(value);
+                else value = JSON.stringify({__object:value});
+                // Compress
+                value = LZString.compress(value);
+                localStorage.setItem(key, value);
+
+                // Return
+                return true;
+            }
+            return false;
+        };
+        this.get = function (key) {
+            if (Core.debug) Core.log.printDebug('Core.cache.get("' + key+'",..)');
+
+            if (Core.cache.isAvailable) {
+                key = 'CloudFrameWorkCache_'+key;
+                var ret = localStorage.getItem(key);
+                if(typeof ret != undefined && ret != null) {
+                    ret = JSON.parse(LZString.decompress(ret));
+                    if(typeof ret['__object'] != 'undefined') ret = ret['__object'];
+                }
+                return ret;
+
+            }
+            return false;
+        };
+
+        this.delete = function (key) {
+            if (Core.debug) Core.log.printDebug('Core.cache.delete("' + key+'",..)');
+            if (Core.cache.isAvailable) {
+                key = 'CloudFrameWorkCache_'+key;
+                localStorage.removeItem(key);
+                return true;
+            }
+            return false;
+        };
+    };
+
     // It requires fetch polyfill: bower install fetch --save
     this.request = new function () {
         this.token = ''; // X-DS-TOKEN sent in all calls
@@ -1379,58 +1488,9 @@ Core = new function () {
             Core.request.headers = {};
         };
     };
-    this.cache =  new function () {
 
-        this.isAvailable = true;
 
-        if (typeof(Storage) == "undefined") {
-            Core.error.add('Cache is not supported in this browser');
-            this.available = false;
-        };
 
-        this.set = function (key, value) {
-            if (Core.debug) Core.log.printDebug('Core.cache.set("' + key+'",..)');
-
-            if (Core.cache.isAvailable) {
-                key = 'CloudFrameWorkCache_'+key;
-                if(typeof value == 'object') value = JSON.stringify(value);
-                else value = JSON.stringify({__object:value});
-
-                // Compress
-                value = LZString.compress(value);
-                localStorage.setItem(key, value);
-
-                // Return
-                return true;
-            }
-            return false;
-        };
-        this.get = function (key) {
-            if (Core.debug) Core.log.printDebug('Core.cache.get("' + key+'",..)');
-
-            if (Core.cache.isAvailable) {
-                key = 'CloudFrameWorkCache_'+key;
-                var ret = localStorage.getItem(key);
-                if(typeof ret != undefined && ret != null) {
-                    ret = JSON.parse(LZString.decompress(ret));
-                    if(typeof ret['__object'] != 'undefined') ret = ret.__object;
-                }
-                return ret;
-
-            }
-            return false;
-        };
-
-        this.delete = function (key) {
-            if (Core.debug) Core.log.printDebug('Core.cache.delete("' + key+'",..)');
-            if (Core.cache.isAvailable) {
-                key = 'CloudFrameWorkCache_'+key;
-                localStorage.removeItem(key);
-                return true;
-            }
-            return false;
-        };
-    };
     this.cookies =  new function () {
         this.path = {path: '/'};
         this.remove = function (varname) {
@@ -1599,7 +1659,7 @@ Core = new function () {
             if(typeof  localizevar == 'undefined') {
                 return Core.localize.dics;
             } else {
-                if(Core.formParams('_debugDics')) return localizevar
+                if(Core.url.formParams('_debugDics')) return localizevar
                 else return (typeof Core.localize.dics[localizevar] != 'undefined')?Core.localize.dics[localizevar]:localizevar;
 
             }
@@ -1629,6 +1689,7 @@ Core = new function () {
         }
     };
 
+    // Managin User info
     this.user = new function () {
         this.auth = false;      // Authenticated true or false
         this.info = {};         // User information when authenticated
