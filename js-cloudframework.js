@@ -1130,7 +1130,7 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.1.2';
+    this.version = '1.1.3';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -1179,7 +1179,7 @@ Core = new function () {
         this.printDebug = function(title,content,separator) {
             // If no debug return
             if (!Core.log.debug) return;
-            Core.log.print(title,content,separator);
+            Core.log.print('[DEBUG] '+title,content,separator);
         };
 
         // Print in console.
@@ -1247,6 +1247,8 @@ Core = new function () {
 
         this.add = function(data) {
 
+            if (Core.debug) Core.log.printDebug('Core.data.add(' + JSON.stringify(varname)+');');
+
             if(typeof data !='object') {
                 Core.error.add('Core.data.add(data)','data is not an object');
                 return false;
@@ -1255,11 +1257,12 @@ Core = new function () {
             for(k in data) {
                 Core.data.info[k] = data[k];
             }
-            Core.cache.set('CloudFrameWorkAuthUser',Core.data.info);
             return true;
         }
 
         this.set = function(key,value) {
+
+            if (Core.debug) Core.log.printDebug('Core.data.set("'+key+'",' + JSON.stringify(value)+');');
 
             if(typeof key !='string') {
                 Core.error.add('Core.data.set(key,value)','key is not a string');
@@ -1267,11 +1270,12 @@ Core = new function () {
             }
 
             Core.data.info[key] = value;
-            Core.cache.set('CloudFrameWorkAuthUser',Core.data.info);
             return true;
         }
 
         this.get = function(key) {
+            if (Core.debug) Core.log.printDebug('Core.data.get("'+key+'");');
+
             if(typeof key =='undefined') return;
 
             return(Core.data.info[key]);
@@ -1293,7 +1297,7 @@ Core = new function () {
         };
         this.set = function (varname, data) {
             Cookies.set(varname, data, Core.cookies.path);
-            if (Core.debug) Core.log.printDebug('Core.cookies.set("' + varname+'",'+typeof data+');');
+            if (Core.debug) Core.log.printDebug('Core.cookies.set("' + varname+'","'+data+'");');
         };
         this.get = function (varname) {
             return Cookies.get(varname);
@@ -1312,7 +1316,7 @@ Core = new function () {
         };
 
         this.set = function (key, value) {
-            if (Core.debug) Core.log.printDebug('Core.cache.set("' + key+'",..)');
+            if (Core.debug) Core.log.printDebug('Core.cache.set("' + key+'",'+JSON.stringify(value)+')');
 
             if (Core.cache.isAvailable) {
                 key = 'CloudFrameWorkCache_'+key;
@@ -1328,7 +1332,7 @@ Core = new function () {
             return false;
         };
         this.get = function (key) {
-            if (Core.debug) Core.log.printDebug('Core.cache.get("' + key+'",..)');
+            if (Core.debug) Core.log.printDebug('Core.cache.get("' + key+'")');
 
             if (Core.cache.isAvailable) {
                 key = 'CloudFrameWorkCache_'+key;
@@ -1471,7 +1475,7 @@ Core = new function () {
             if(typeof payload['body'] != 'undefined' && payload['body']!= null) call['body'] = payload['body'];
 
             fetch(endpoint, call).then(function (response) {
-                if(Core.debug) Core.log.printDebug('Core.request.call returning from: '+endpoint,'Tranforming from: '+payload['responseType'],true);
+                if(Core.debug) Core.log.printDebug('Core.request.call returning from: '+endpoint+' and transforming result from: '+payload['responseType'],true);
                 if(payload['mode']=='no-cors') {
                     return(response);
                 } else {
@@ -1485,8 +1489,9 @@ Core = new function () {
             }).then(function (response) {
                 callback(response);
             }).catch(function (e) {
-                    Core.error.add('[Error] request.call(' + endpoint+') '+e);
-                    errorcallback(e);
+                    if(typeof e == 'undefined') e = '';
+                    Core.error.add('[Core.request] fetch(' + endpoint+') ');
+                    //errorcallback(e);
                 }
             );
         }
@@ -1706,18 +1711,39 @@ Core = new function () {
 
         // If you want to recover data avoiding to do extra call.. use init
         this.init = function (cookieVar) {
-            if(Core.debug) Core.log.printDebug('Core.user.init("'+cookieVar+'");');
 
+            if(!Core.authActive) {
+                Core.error.add('Core.user.init: Core.authActive is false');
+                return;
+            }
+
+            // Calculationg cookieVar if it is not passed
+            if(typeof cookieVar =='undefined') {
+                if(Core.debug) Core.log.printDebug('Core.user.init: using Core.authCookieName ['+Core.authCookieName+']');
+                Core.user.cookieVar = Core.authCookieName;
+                cookieVar = Core.user.cookieVar;
+            } else {
+                Core.user.cookieVar = cookieVar;
+            }
+
+            if(typeof cookieVar == null) {
+                Core.error.add('Core.user.init: missing cookieVar')
+                return;
+            }
+
+            if(Core.debug) Core.log.printDebug('Core.user.init("'+cookieVar+'");');
             var value = Core.cookies.get(cookieVar);
             if(!value) {
                 if(Core.debug) Core.log.printDebug(cookieVar+' cookie does not have any value.. so Core.user.setAuth(false)');
-                Core.user.setAuth(false);
+                if(Core.user.auth) Core.user.setAuth(false);
             } else {
                 var cache = null;
                 if(cache = Core.cache.get('CloudFrameWorkAuthUser')) {
                     if(typeof cache['__id'] == undefined || cache['__id']!=value) {
+                        if(Core.debug) Core.log.printDebug('Core.user.init: CloudFrameWorkAuthUser {__id:value } DOES NOT MATCH with the value of the cookie '+cookieVar);
                         Core.user.setAuth(false);
                     } else {
+                        if(Core.debug) Core.log.printDebug('Core.user.init: CloudFrameWorkAuthUser {__id:value} match with the value of the cookie '+cookieVar);
                         Core.user.auth=true;
                         Core.user.info = cache;
                     }
@@ -1728,42 +1754,42 @@ Core = new function () {
         }
 
         // Set Authentication to true of false
-        this.setAuth = function(val,cookieVar) {
-            if(Core.debug) Core.log.printDebug('Core.user.setAuth('+val+',"'+cookieVar+'")');
-            if(!Core.authActive) {
-                if(Core.debug) Core.log.printDebug('Core.user.setAuth: Core.authActive == false, so ignoring call ');
+        this.setAuth = function(val) {
+
+            // Assign the current cookie var
+            cookieVar = Core.user.cookieVar;
+
+            if(typeof cookieVar =='undefined' || cookieVar == null) {
+                Core.error.add('Core.user.setAuth: missing Core.user.cookieVar. Try use Core.init()');
                 return;
             }
+
+            if(Core.debug) Core.log.printDebug('Core.user.setAuth('+val+') for cookie: '+cookieVar);
+
             // No authentication values by default
             Core.user.info = {};
             Core.user.credentials = {};
             Core.user.auth=false;
-            Core.user.cookieVar = null;
             Core.cache.set('CloudFrameWorkAuthUser',{});
-            if(typeof cookieVar =='undefined') {
-                if(Core.debug) Core.log.printDebug('Core.user.setAuth: using Core.authCookieName ['+Core.authCookieName+']');
-                cookieVar = Core.authCookieName;
-                if(typeof cookieVar == null) return;
-            }
+
 
             // Activating Authentication
+            cookieValue = Core.cookies.get(cookieVar);
             if(val) {
-                cookieValue = Core.cookies.get(cookieVar);
                 if(typeof cookieValue == 'undefined' || !cookieValue) {
-                    Core.error.add('Core.user.setAuth(true,"'+cookieVar+'"), cookieVar does not exist');
+                    Core.error.add('Core.user.setAuth(true), cookieVar does not exist: '+cookieVar);
                     return false;
                 } else {
                     Core.user.auth=true;
-                    Core.user.cookieVar = cookieVar;
                     Core.cache.set('CloudFrameWorkAuthUser',{__id:cookieValue});
                     Core.user.info = {__id:cookieValue};
-
+                    if(Core.debug) Core.log.printDebug('Core.user.setAuth: saved CloudFrameWorkAuthUser in cache with value '+JSON.stringify(Core.cache.get('CloudFrameWorkAuthUser')));
                 }
             }
             // Finalizing deactivating authentication
             else {
                 // Delete cookieVar if it is passed
-                if(typeof cookieVar != 'undefined') Core.cookies.remove(cookieVar);
+                if(typeof cookieValue != 'undefined') Core.cookies.remove(cookieVar);
             }
             return true;
 
@@ -1772,6 +1798,11 @@ Core = new function () {
         // Says if a user is auth
         this.isAuth = function() {
             return (Core.user.auth==true);
+        }
+
+        this.getCookieValue = function() {
+            if(Core.user.cookieVar) return Core.cookies.get(Core.user.cookieVar);
+            else return null;
         }
 
         this.add = function(data) {
@@ -1910,4 +1941,26 @@ Core = new function () {
         }
 
     }
+
+    // It generates a popup avoiding blocking and execute callback once it has finished.
+    this.oauthpopup = function(options)
+    {
+        options.windowName = options.windowName ||  'ConnectWithOAuth'; // should not include space for IE
+        options.windowOptions = options.windowOptions || 'location=0,status=0,width=800,height=400';
+        options.callback = options.callback || function(){ window.location.reload(); };
+        var that = this;
+        console.log(options.path);
+        that._oauthWindow = window.open(options.path, options.windowName, options.windowOptions);
+        that._oauthWindow.focus();
+        that._oauthInterval = window.setInterval(function(){
+            if (that._oauthWindow.closed) {
+                window.clearInterval(that._oauthInterval);
+                options.callback();
+            } else {
+                that._oauthWindow.focus();
+            }
+
+        }, 1000);
+    };
+
 };

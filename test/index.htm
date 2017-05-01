@@ -103,7 +103,7 @@ Use <b>Core.cache.set(key,value)</b>, <b>Core.cache.get(key)</b> and <b>Core.cac
     - <a href="javascript:alert(Core.cache.delete('testVar'))">Core.cache.delete('testVar')</a><br/>
     - <a href="javascript:alert(Core.cache.delete('testVar2'))">Core.cache.delete('testVar2')</a><br/>
 </p>
-<h2>Auth user (<a href="javascript:testAuth();">test</a>)</h2>
+<h2>Auth user (<a href="javascript:testAuth();">auth/unauth</a>)</h2>
 Use <b>Core.user</b> will handle all relative to the auth user.
 <br>
 Assumtions cookie to use: testCookie</br>
@@ -257,8 +257,13 @@ helps you to bind concurrent async functions and only continue when all of them 
     filedrag.addEventListener("dragover", FileDragHover, false);
     filedrag.addEventListener("dragleave", FileDragHover, false);
     filedrag.addEventListener("drop", FileSelectHandler, false);
+
+
     Core.debug = (Core.url.formParams('debug'))?true:false;
-    Core.log.debug = false;
+    Core.authActive = true;
+    Core.authCookieName = 'testCookie';
+    Core.init();
+
     //Core.log.type = 'log';
     // Preparing calls
     var payloads = [];
@@ -340,9 +345,11 @@ helps you to bind concurrent async functions and only continue when all of them 
             if(!response.success) alert('error');
         });
     }
-    Core.user.init('testCookie');
+
+
+
     function  testAuth() {
-        Core.cookies.set('testCookie','value');
+        Core.cookies.set('testCookie','ValueForTheCookie');
         if(Core.user.isAuth()) {
             alert('User is auth. Change to Core.user.setAuth(false)');
             Core.user.setAuth(false);
