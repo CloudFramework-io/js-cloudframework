@@ -1,7 +1,9 @@
 Core = new function () {
 
-    this.version = '1.1.1';
+    this.version = '1.1.2';
     this.debug = false;
+    this.authActive = false;
+    this.authCookieName = 'cfauth';
 
     this.url = new function () {
         this.params = function(pos) {
@@ -40,7 +42,7 @@ Core = new function () {
 
     // Log class control. printDebug requires debug = true
     this.log =  new function () {
-        this.debug = false;
+        this.debug = true;
         this.type = 'console';
 
         // Print if debug == false
@@ -148,6 +150,24 @@ Core = new function () {
         this.reset = function() {
             Core.data.info = {};
         }
+    };
+
+    // Manage Cookies based on js-cookies
+    this.cookies =  new function () {
+        this.path = {path: '/'};
+        this.remove = function (varname) {
+            if (typeof varname != 'undefined') {
+                Cookies.remove(varname, Core.cookies.path);
+                if (Core.debug) Core.log.printDebug('Core.cookies.remove("' + varname+'");');
+            }
+        };
+        this.set = function (varname, data) {
+            Cookies.set(varname, data, Core.cookies.path);
+            if (Core.debug) Core.log.printDebug('Core.cookies.set("' + varname+'",'+typeof data+');');
+        };
+        this.get = function (varname) {
+            return Cookies.get(varname);
+        };
     };
 
     // Persistent data. Reloading the page the info will be kept in the localStorage compressed if the browser support it
@@ -359,24 +379,7 @@ Core = new function () {
         };
     };
 
-
-
-    this.cookies =  new function () {
-        this.path = {path: '/'};
-        this.remove = function (varname) {
-            if (typeof varname != 'undefined') {
-                Cookies.remove(varname, Core.cookies.path);
-                if (Core.debug) Core.log.printDebug('removed cookie ' + varname);
-            }
-        };
-        this.set = function (varname, data) {
-            Cookies.set(varname, data, Core.cookies.path);
-            if (Core.debug) Core.log.printDebug('set cookie ' + varname);
-        };
-        this.get = function (varname) {
-            return Cookies.get(varname);
-        };
-    };
+    // Define services to use with Core.request
     this.services = new function() {
         var binds = {};
 
@@ -451,6 +454,8 @@ Core = new function () {
             }
         }
     };
+
+    // deprecated
     this.dom = new function() {
 
         // Search the element in the dom
@@ -488,6 +493,8 @@ Core = new function () {
 
 
     };
+
+    // Manage configuration. It takes <body coore-config='JSON' ..> to init
     this.config = new function () {
         this.config = null;
         if(null==this.config && (body = document.getElementsByTagName("BODY")[0].getAttribute("core-config"))) {
@@ -509,6 +516,8 @@ Core = new function () {
             return true;
         }
     };
+
+    // Localize contents
     this.localize = new function () {
         this.dics = null;
         this.lang = 'en';
@@ -565,15 +574,47 @@ Core = new function () {
         this.info = {};         // User information when authenticated
         this.cookieVar = null;  // Cookie to use for authentication id
 
+        // If you want to recover data avoiding to do extra call.. use init
+        this.init = function (cookieVar) {
+            if(Core.debug) Core.log.printDebug('Core.user.init("'+cookieVar+'");');
+
+            var value = Core.cookies.get(cookieVar);
+            if(!value) {
+                if(Core.debug) Core.log.printDebug(cookieVar+' cookie does not have any value.. so Core.user.setAuth(false)');
+                Core.user.setAuth(false);
+            } else {
+                var cache = null;
+                if(cache = Core.cache.get('CloudFrameWorkAuthUser')) {
+                    if(typeof cache['__id'] == undefined || cache['__id']!=value) {
+                        Core.user.setAuth(false);
+                    } else {
+                        Core.user.auth=true;
+                        Core.user.info = cache;
+                    }
+                }
+            }
+            if(Core.debug) Core.log.printDebug('Core.isAuth(): '+Core.user.isAuth());
+
+        }
+
         // Set Authentication to true of false
         this.setAuth = function(val,cookieVar) {
-
+            if(Core.debug) Core.log.printDebug('Core.user.setAuth('+val+',"'+cookieVar+'")');
+            if(!Core.authActive) {
+                if(Core.debug) Core.log.printDebug('Core.user.setAuth: Core.authActive == false, so ignoring call ');
+                return;
+            }
             // No authentication values by default
             Core.user.info = {};
             Core.user.credentials = {};
             Core.user.auth=false;
             Core.user.cookieVar = null;
             Core.cache.set('CloudFrameWorkAuthUser',{});
+            if(typeof cookieVar =='undefined') {
+                if(Core.debug) Core.log.printDebug('Core.user.setAuth: using Core.authCookieName ['+Core.authCookieName+']');
+                cookieVar = Core.authCookieName;
+                if(typeof cookieVar == null) return;
+            }
 
             // Activating Authentication
             if(val) {
@@ -597,25 +638,6 @@ Core = new function () {
             return true;
 
         };
-
-        // If you want to recover data avoiding to do extra call.. use init
-        this.init = function (cookieVar) {
-
-            var value = Core.cookies.get(cookieVar);
-            if(!(value = Core.cookies.get(cookieVar))) {
-                Core.user.setAuth(false);
-            } else {
-                var cache = null;
-                if(cache = Core.cache.get('CloudFrameWorkAuthUser')) {
-                    if(typeof cache['__id'] == undefined || cache['__id']!=value) {
-                        Core.user.setAuth(false);
-                    } else {
-                        Core.user.auth=true;
-                        Core.user.info = cache;
-                    }
-                }
-            }
-        }
 
         // Says if a user is auth
         this.isAuth = function() {
@@ -685,7 +707,6 @@ Core = new function () {
         }
     };
 
-
     // Bind function based on promises
     this.bind = function(functions,callback,errorcallback) {
 
@@ -738,5 +759,25 @@ Core = new function () {
             }
         }
         return ret;
+    }
+
+    // Init the frameWork
+    this.init = function(functions,callback) {
+
+        if(Core.debug) Core.log.printDebug('Core.init('+typeof functions+','+typeof callback+')');
+
+        // Check auth
+        if(Core.authActive) {
+            Core.user.init(Core.authCookieName);
+        }
+
+        if(typeof functions == 'function' || typeof functions == 'array') {
+            Core.bind(functions,function(response) {
+                if(typeof callback == 'function')  callback(response);
+            });
+        } else {
+            if(typeof callback == 'function') callback({success:true});
+        }
+
     }
 };

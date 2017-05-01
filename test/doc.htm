@@ -1,0 +1,222 @@
+
+<!DOCTYPE HTML>
+<!--
+	Ethereal by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+    <title>Ethereal by HTML5 UP</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+<body>
+
+<!-- Page Wrapper -->
+<div id="page-wrapper">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Page 1 -->
+        <section class="panel banner right">
+            <div class="content color0 span-3-75">
+                <h1 class="major">js-framework</h1>
+                <p>This is <strong>a simple framework</strong>, based on cloudframework.io philosofy to build powerfull frontend apps, it is compatible with other frameworks.
+                    It includes:     <b>js-cookie, fetch, lz-string, knockout</b></p>
+                <p>bower install js-framework (.. and 'Core' javascript object will be ready to use)</p>
+                <ul class="actions">
+                    <li><a href="#first" class="button special color1 circle icon fa-angle-right">Next</a></li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- Content -->
+        <section class="panel color2-alt" id="first">
+
+            <!-- Hacking -->
+            <div class="intro color2">
+                <h2 class="major">Hacking code :)</h2>
+                <pre>
+
+function hello(resolve,reject) { console.log('Hello world'); resolve();}
+Core.debug = true;
+Core.authActive = true;
+Core.init([hello],function(response) {
+    if(response.success) {
+    ...
+    }
+    else {
+    ..
+    }
+});
+// OPEN DE CONSOLE TO SEE MORE THINGS
+</pre>
+            </div>
+
+            <!-- Basic -->
+            <div class="inner columns aligned">
+                <div class="span-2-75">
+                    <form method="post" action="#">
+                        <h1>Basic configuration</h1>
+                        <div class="span-4-5">
+                            <div >
+                                Core.debug = <span data-bind="text: coreDebug"></span>
+                                <input type="checkbox" data-bind="click: changeCoreDebug,checked: coreDebug" />;
+                                Core.version = <span data-bind="text: coreVersion"></span>;
+
+                                <br/>
+                                Core.authActive = <span data-bind="text: coreAuthAcive"></span>
+                                <input type="checkbox" data-bind="click: changeCoreAuthAcive,checked: coreAuthAcive" />;
+                                Core.authCookieName = <span data-bind="text: coreAuthCookieName" /></span>;<br/>
+                                Current value of the cookie '<span data-bind="text: coreAuthCookieName" /></span>':<b><span data-bind="text: getCookieValue"></span></b>
+
+                                <br/><input type="button" value="Core.init();" data-bind="click: init"> (inspect console :)
+                                <div data-bind="visible: coreAuthAcive" style="display: none;">
+                                    <hr>
+                                    Core.user.isAuth() == <b><span data-bind="text: coreIsAuth" /></span></b><br/>
+                                    If the cookie '<span data-bind="text: coreAuthCookieName" /></span>' has any value and,
+                                    in the local storage exists a variable  <i>CloudFrameWorkAuthUser</i> with the value <i>{__id:'value of the cookie' }</i>
+                                    then <i>Core.user.isAuth() will return <i>true</i></i>.
+                                    <br/>Core.cache.get('CloudFrameWorkAuthUser'): <b><span data-bind="text: cacheCloudFrameWorkAuthUser" /></span></b> <br/>
+                                    </br>
+                                    <input type="button" value="Auth / Unauth" data-bind="click: setAuth">
+                                </div>
+                                <div style="display: none">
+                                    <br/>#textareaConsole
+                                    <textarea id="textareaConsole" rows="8"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+                <div class="span-3" data-bind="visible: coreIsAuth" style="display: none;">
+
+                    <h3>Testing Authenticated user user</h3>
+                    <h4>Core.user.info: <b><span data-bind="text: coreUserInfo" /></span></b></h4>
+                    Core.user methods
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description.</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a data-bind="click: userSet">.set(field,value)</a></td>
+                            <td>Set a value into the user with the key field.</td>
+                        </tr>
+                        <tr>
+                            <td><a data-bind="click: userAdd">.add({key:value,key:value})</a></td>
+                            <td>Set multimple values at once</td>
+                        </tr>
+                        <tr>
+                            <td><a onclick="alert('Core.user.get(\'var1\'): '+Core.user.get('var1'));">.get('key')</a></td>
+                            <td>Retrive a key</td>
+                        </tr>
+                        <tr>
+                            <td><a data-bind="click: userReset">.reset()</a></td>
+                            <td>Clean up user data</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Config your applications</h2>
+                <p><b>Core.config</b> will allow to manage app configuration. You can start adding configuration vars
+                    adding in the &ltbody ..: <b>core-config="VALID-JSON:{key:value,key:value}"</b> </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Url helpers</h2>
+                <p><b>Core.url</b> will easily manage URL attributes. </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Localize your app</h2>
+                <p><b>Core.localize</b> will manage tags to localize your app. </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Set data</h2>
+                <p><b>Core.data</b> will store data but it will be lost if the user reload the page </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Set cache data</h2>
+                <p><b>Core.cache</b> will store data that will be kept in the case the user reload the page </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Ajax async call</h2>
+                <p><b>Core.request</b> will allow you to call external urls with: GET, POST, PUT, DELETE .. </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Ajax async call</h2>
+                <p><b>Core.request</b> will allow you to call external urls with: GET, POST, PUT, DELETE .. </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Predefine Requests with services</h2>
+                <p><b>Core.services</b> will allow to define request calls, allowing to bind code
+                    and caching the result that the service has to be used twice or more..  </p>
+
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Predefine Requests with services</h2>
+                <p><b>Core.services</b> will allow to define request calls, allowing to bind code
+                    and caching the result that the service has to be used twice or more..  </p>
+            </div>
+        </section>
+        <section class="panel color2-alt">
+            <div class="intro color2">
+                <h2 class="major">Bind code to multiple functions</h2>
+                <p><b>Core.bind</b> will allow to call multiple functions with a promise and will wait until
+                    all the promises are returned  </p>
+                <pre>Core.bind([f1,..],function(response) {
+    if(response.success) {
+       ....
+    } else {
+       ....
+    }
+});</pre>
+            </div>
+        </section>
+        <!-- Copyright -->
+        <div class="copyright">&copy; CloudFramework.io. &copy; Design: <a href="https://html5up.net">HTML5 UP</a>.</div>
+
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="js/js-cloudframework.js"></script>
+
+<!-- HTML interface -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/skel.min.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js" integrity="sha256-owX7sroiO/O1a7h3a4X29A1g3QgqdNvijRQ7V5TH45M=" crossorigin="anonymous"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
