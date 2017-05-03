@@ -1,6 +1,6 @@
 Core = new function () {
 
-    this.version = '1.1.4';
+    this.version = '1.1.5';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -256,7 +256,7 @@ Core = new function () {
             if(typeof payload['url'] == 'undefined') return Core.error.add('request.call(payload,..): missing payload["url"].');
 
             // GET, POST, PUT, DELETE
-            if(typeof payload['method'] == 'undefined') return Core.error.add('request.call(payload,..): missing payload["method"].');
+            if(typeof payload['method'] == 'undefined') payload['method'] ='GET';
 
             // ACCEPTED VALUES:form or json
             if(typeof payload['contentType'] == 'undefined') payload['contentType'] ='json';
@@ -833,7 +833,7 @@ Core = new function () {
                     Core.dynamic.urls[url] =  document.createElement('script');
                     Core.dynamic.urls[url].type = type;
                     if(id!='') Core.dynamic.urls[url].id = id;
-                    Core.dynamic.urls[url].onload = function() {
+                    Core.dynamic.urls[url].onload = function( ret) {
                         Core.log.print('Core.dynamic.loadScript("'+url+'") loaded');
                         if(typeof callback=='undefined') {
                             Core.log.print(url+' loaded');
