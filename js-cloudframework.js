@@ -1130,7 +1130,7 @@ if (typeof define === 'function' && define.amd) {
 
 Core = new function () {
 
-    this.version = '1.1.5';
+    this.version = '1.1.6';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -1480,7 +1480,7 @@ Core = new function () {
             if(typeof payload['body'] != 'undefined' && payload['body']!= null) call['body'] = payload['body'];
 
             fetch(endpoint, call).then(function (response) {
-                if(Core.debug) Core.log.printDebug('Core.request.call returning from: '+endpoint+' and transforming result from: '+payload['responseType'],true);
+                if(Core.debug) Core.log.printDebug('Core.request.call returning from: '+endpoint+' and transforming result from: '+payload['responseType']);
                 if(payload['mode']=='no-cors') {
                     return(response);
                 } else {
