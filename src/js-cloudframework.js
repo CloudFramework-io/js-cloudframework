@@ -1,5 +1,4 @@
 Core = new function () {
-
     this.version = '1.1.8';
     this.debug = false;
     this.authActive = false;

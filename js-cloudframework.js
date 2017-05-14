@@ -1129,8 +1129,7 @@ if (typeof define === 'function' && define.amd) {
 })(typeof self !== 'undefined' ? self : this);
 
 Core = new function () {
-
-    this.version = '1.1.6';
+    this.version = '1.1.8';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -1996,7 +1995,7 @@ Core = new function () {
                 if(typeof data.template.object == 'string')  object = data.template.object;
                 if(typeof data.template.id == 'string')  id = data.template.id;
                 if(typeof data.template.type == 'string')  type = data.template.type;
-                if(typeof data.template.dom == object)  dom = data.template.dom;
+                if(typeof data.template.dom == 'object')  dom = data.template.dom;
             }
             if(url=='') {
                 Core.error.add('Core.dynamic.loadTemplate(data,callback) Missing a right value for data. use {template:url}');
