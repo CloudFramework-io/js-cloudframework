@@ -1,5 +1,5 @@
 Core = new function () {
-    this.version = '1.1.8';
+    this.version = '1.1.9';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -297,11 +297,32 @@ Core = new function () {
                 endpoint = payload['base']+endpoint;
             }
 
-            // Mode of the call
-            if(typeof payload['mode'] == 'undefined') payload['mode'] = 'cors';
+            // Mode of the call: cors, no-cors, same-origin
+            if(typeof payload['mode'] == 'undefined') {
+                payload['mode'] = 'cors';
+            }
+            else {
+                if((payload['mode']!='cors') && (payload['mode']!='no-cors') && (payload['mode']!='same-origin'))
+                    payload['credentials'] = 'cors';
+            }
 
-            // Credentials of the call: include, same-origin, none
-            if(typeof payload['credentials'] == 'undefined') payload['credentials'] = 'none';
+            // Credentials of the call: include, same-origin, omit.. other value crash on mobile browsers
+            if(typeof payload['credentials'] == 'undefined') {
+                payload['credentials'] = 'omit';
+            }
+            else {
+                if((payload['credentials']!='include') && (payload['credentials']!='same-origin'))
+                    payload['credentials'] = 'omit';
+            }
+
+            // cache for the call: default, no-store, reload, no-cache, force-cache, or only-if-cached
+            if(typeof payload['cache'] == 'undefined') {
+                payload['cache'] = 'default';
+            }
+            else {
+                if((payload['cache']!='no-store') && (payload['cache']!='reload') && (payload['cache']!='no-cache') && (payload['cache']!='force-cache') && (payload['cache']!='only-if-cached'))
+                    payload['cache'] = 'default';
+            }
 
             if(typeof payload['params'] == 'undefined') payload['params'] = {};
 
@@ -342,6 +363,7 @@ Core = new function () {
                 method: payload['method'],
                 headers: payload.headers,
                 mode:payload['mode'] ,
+                cache:payload['cache'] ,
                 credentials: payload['credentials']
             };
 
