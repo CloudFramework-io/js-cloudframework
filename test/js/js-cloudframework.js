@@ -1129,8 +1129,7 @@ if (typeof define === 'function' && define.amd) {
 })(typeof self !== 'undefined' ? self : this);
 
 Core = new function () {
-
-    this.version = '1.1.7';
+    this.version = '1.1.9';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
@@ -1159,7 +1158,7 @@ Core = new function () {
                     if (results == null) return null;
                     else return true;
                 } else {
-                    return results[1] || 0;
+                    return results[1] || '';
                 }
             }
         }
