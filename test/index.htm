@@ -210,7 +210,7 @@ helps you to bind concurrent async functions and only continue when all of them 
                 Core.services.bind('getUrlToUpload',function(response){
                     if(response.success) {
                         var upload_url = response.data.UploadInfo.uploadUrl;
-                        Core.services.set('uploadFile',{method:'POST',url:upload_url,credentials:'include',contentType:'form',params:info.params});
+                        Core.services.set('uploadFile',{method:'POST',url:upload_url,credentials:'include',params:info.params});
                         Core.services.bind('uploadFile',function(responseUpload){
                             if(responseUpload.success) {
                                 for(k in responseUpload.data.files) {
