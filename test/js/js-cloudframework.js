@@ -1129,7 +1129,7 @@ if (typeof define === 'function' && define.amd) {
 })(typeof self !== 'undefined' ? self : this);
 
 Core = new function () {
-    this.version = '1.2.1';
+    this.version = '1.2.2';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';

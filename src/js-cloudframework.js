@@ -1,5 +1,5 @@
 Core = new function () {
-    this.version = '1.2.1';
+    this.version = '1.2.2';
     this.debug = false;
     this.authActive = false;
     this.authCookieName = 'cfauth';
