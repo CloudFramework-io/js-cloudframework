@@ -8,7 +8,7 @@ JS-CLOUDFRAME does not try to replace any of other frameworks, just in one file 
 .
 JS-CLOUDFRAMEWORK is a very straight-forward solutions as the result to develop hundred of projects and it is ready to interact with CloudFramework API services.
 
-If you like it, use it  it is free.. if not, at least be sure you can cover all these features explained in this document.
+If you like it, use it :) it is free.. if not, at least be sure you can cover all these features explained in this document.
 
 I hope you enjoy it.
 
@@ -33,4 +33,11 @@ sudo npm install --global webpack
 ### Testing
 http://phantomjs.org/download
 
+# Basics
+
+To start with js-cloudframework include it at the end of the HTML page
+
+`<script src="{{path}}/cloudframework.min.js"></script>`
+
+It will allow you to user the Core class.
 
